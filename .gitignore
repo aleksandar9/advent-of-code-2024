@@ -4,3 +4,4 @@
 build
 src/**/*.txt
 local.properties
+!src/**/*_test*.txt
