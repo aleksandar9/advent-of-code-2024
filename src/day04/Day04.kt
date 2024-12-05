@@ -47,12 +47,12 @@ fun main() {
     fun List<Node>.findXmas(fromX: Node): Int {
         val xmasList = mutableListOf<List<Node>>()
 
-        this.findAdjacentMs(fromX).forEach {  m ->
+        this.findAdjacentMs(fromX).forEach { m ->
             val next = nextNode(fromX, m)
             val a = this.find { it.x == next.first && it.y == next.second && it.value == 'A' }
             if (a != null) {
                 val nextS = nextNode(m, a)
-                val s =  this.find { it.x == nextS.first && it.y == nextS.second && it.value == 'S' }
+                val s = this.find { it.x == nextS.first && it.y == nextS.second && it.value == 'S' }
                 if (s != null) xmasList.add(listOf(fromX, m, a, s))
             }
         }
