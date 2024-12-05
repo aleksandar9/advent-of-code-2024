@@ -60,7 +60,7 @@ fun main() {
         return xmasList.count()
     }
 
-    fun List<Node>.findX_mas(fromA: Node): Boolean {
+    fun List<Node>.findXMas(fromA: Node): Boolean {
         val ms = arrayOf('M', 'S')
         val rightUp = this.find { it.x == fromA.x + 1 && it.y == fromA.y - 1 && it.value in ms }
         val leftDown = this.find { it.x == fromA.x - 1 && it.y == fromA.y + 1 && it.value in ms }
@@ -103,7 +103,7 @@ fun main() {
         }
 
         grid.forEach { node ->
-            if (node.value == 'A' && grid.findX_mas(node)) {
+            if (node.value == 'A' && grid.findXMas(node)) {
                 sum++
             }
         }
