@@ -20,19 +20,51 @@ fun main() {
         return listOfNotNull(left, up, right, down).size
     }
 
-    fun List<Node>.calculateNeighbourCoordinates(from: Node): List<Pair<Int, Int>> {
-        val right = this.find { it.x == from.x + 1 && it.y == from.y && it.plotID == from.plotID }
-        val left = this.find { it.x == from.x - 1 && it.y == from.y && it.plotID == from.plotID }
-        val up = this.find { it.x == from.x && it.y == from.y - 1 && it.plotID == from.plotID }
-        val down = this.find { it.x == from.x && it.y == from.y + 1 && it.plotID == from.plotID }
-        return listOfNotNull(left, up, right, down).map { it.x to it.y }
+    fun List<Node>.calculateCornerNeighbours(node: Node): Int {
+        var corners = 0
+
+        val right = this.find { it.x == node.x + 1 && it.y == node.y && it.plotID != node.plotID }
+        val left = this.find { it.x == node.x - 1 && it.y == node.y && it.plotID != node.plotID }
+        val up = this.find { it.x == node.x && it.y == node.y - 1 && it.plotID != node.plotID }
+        val down = this.find { it.x == node.x && it.y == node.y + 1 && it.plotID != node.plotID }
+
+        val rightUp =
+            this.find { it.x == node.x + 1 && it.y == node.y - 1 && it.plotID != node.plotID }
+        val leftDown =
+            this.find { it.x == node.x - 1 && it.y == node.y + 1 && it.plotID != node.plotID }
+        val leftUp =
+            this.find { it.x == node.x - 1 && it.y == node.y - 1 && it.plotID != node.plotID }
+        val rightDown =
+            this.find { it.x == node.x + 1 && it.y == node.y + 1 && it.plotID != node.plotID }
+
+        val vertical = listOfNotNull(up, down).size
+        val horizontal = listOfNotNull(left, right).size
+        if (horizontal + vertical == 3) {
+            corners += 2 // 2 external corners
+        } else if (horizontal == 1 && vertical == 1) {
+            corners += 1 // 1 external corner
+        }
+
+        if (left == null && down == null && leftDown != null) {
+            corners += 1 // 1 internal corner
+        }
+        if (left == null && up == null && leftUp != null) {
+            corners += 1 // 1 internal corner
+        }
+        if (right == null && up == null && rightUp != null) {
+            corners += 1 // 1 internal corner
+        }
+        if (right == null && down == null && rightDown != null) {
+            corners += 1 // 1 internal corner
+        }
+        return corners
     }
 
     fun List<Node>.printGrid() {
         val maxX = this.maxOf { it.x }
         val maxY = this.maxOf { it.y }
-        for (y in 0 .. maxY) {
-            for (x in 0 .. maxX) {
+        for (y in 0..maxY) {
+            for (x in 0..maxX) {
                 print(this.find { it.x == x && it.y == y }?.plant)
             }
             kotlin.io.println()
@@ -53,7 +85,7 @@ fun main() {
 
     fun List<Node>.calculateFence(plot: List<Node>): Int {
         val plotId = plot[0].plotID
-        return when(plot.size) {
+        return when (plot.size) {
             0 -> 0
             1 -> 4
             2 -> 6
@@ -71,31 +103,26 @@ fun main() {
     }
 
     fun List<Node>.calculateDiscountFence(plot: List<Node>): Int {
-        return when(plot.size) {
+        return when (plot.size) {
             0 -> 0
             1 -> 4
             2 -> 4
             else -> {
-                val x = mutableSetOf<Int>()
-                val y = mutableSetOf<Int>()
+                var sum = 0
                 plot.forEach {
-                        this.calculateNeighbourCoordinates(it).forEach {
-                            x.add(it.first)
-                            y.add(it.second)
-                        }
+                    sum += this.calculateCornerNeighbours(it)
                 }
-                x.size + y.size
+                sum
             }
         }
     }
-
 
     fun part1(input: List<String>): Int {
         var sum = 0
 
         val grid = mutableListOf<Node>()
-        for (y in 0 .. input.size + 1) {
-            for (x in 0 .. input[0].length + 1) {
+        for (y in 0..input.size + 1) {
+            for (x in 0..input[0].length + 1) {
                 if (y == 0 || y == input.size + 1 || x == 0 || x == input[0].length + 1) {
                     grid.add(Node(x, y, '.'))
                 } else {
@@ -128,8 +155,8 @@ fun main() {
         var sum = 0
 
         val grid = mutableListOf<Node>()
-        for (y in 0 .. input.size + 1) {
-            for (x in 0 .. input[0].length + 1) {
+        for (y in 0..input.size + 1) {
+            for (x in 0..input[0].length + 1) {
                 if (y == 0 || y == input.size + 1 || x == 0 || x == input[0].length + 1) {
                     grid.add(Node(x, y, '.'))
                 } else {
