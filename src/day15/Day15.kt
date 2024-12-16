@@ -36,14 +36,12 @@ fun main() {
         }
         if (next.value == '.') {
             next.value = node.value
-            node.value = '.'
             return true
         } else if (next.value == '#') {
             return false
         } else {
             if (this.pushNext(next, direction)) {
                 next.value = node.value
-                node.value = '.'
                 return true
             } else {
                 return false
@@ -67,7 +65,7 @@ fun main() {
             node.value = '.'
             return next
         } else if (next.value == '#') {
-            return next
+            return node
         } else {
             if (this.pushNext(next, direction)) {
                 next.value = node.value
@@ -110,8 +108,9 @@ fun main() {
     }
 
     // test if implementation meets criteria from the description, like:
+    val smallTestInput = readInput(pkg = "day15", name = "Day15_small_test")
+    part1(smallTestInput).println()
     val testInput = readInput(pkg = "day15", name = "Day15_test")
-    part1(testInput).println()
     check(part1(testInput) == 10092)
     check(part2(testInput) == 0)
 
