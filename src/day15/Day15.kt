@@ -87,18 +87,14 @@ fun main() {
             }
         }
 
-        val moves = input.subList(input.indexOf("") + 1, input.size).map { it.toCharArray().toList() }.flatten()
-
-        grid.printGrid()
+        val moves = input.subList(input.indexOf("") + 1, input.size).flatMap { it.toList() }
 
         var robot = grid.first { it.value == '@' }
         moves.forEach { direction ->
             robot = grid.tryToMove(robot, direction)
         }
 
-        grid.printGrid()
-
-        return sum
+        return grid.filter { it.value == 'O' }.sumOf { it.x + 100 * it.y }
     }
 
     fun part2(input: List<String>): Int {
@@ -109,7 +105,9 @@ fun main() {
 
     // test if implementation meets criteria from the description, like:
     val smallTestInput = readInput(pkg = "day15", name = "Day15_small_test")
-    part1(smallTestInput).println()
+    check(part1(smallTestInput) == 2028)
+    check(part2(smallTestInput) == 0)
+
     val testInput = readInput(pkg = "day15", name = "Day15_test")
     check(part1(testInput) == 10092)
     check(part2(testInput) == 0)
