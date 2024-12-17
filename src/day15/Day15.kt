@@ -22,7 +22,6 @@ fun main() {
         }
     }
 
-
     fun List<Node>.pushNext(node: Node, direction: Char): Boolean {
         val next = when (direction) {
             '^' -> this.firstOrNull { it.x == node.x && it.y == node.y - 1 }
@@ -77,9 +76,7 @@ fun main() {
         }
     }
 
-    fun part1(input: List<String>): Int {
-        var sum = 0
-
+    fun part1(input: List<String>, printAllMoves: Boolean = false): Int {
         val grid = mutableListOf<Node>()
         for (y in 0 until input.indexOf("")) {
             for (x in 0 until input[y].length) {
@@ -89,9 +86,20 @@ fun main() {
 
         val moves = input.subList(input.indexOf("") + 1, input.size).flatMap { it.toList() }
 
+        if (printAllMoves) {
+            println("Initial state:")
+            grid.printGrid()
+            println()
+        }
+
         var robot = grid.first { it.value == '@' }
         moves.forEach { direction ->
             robot = grid.tryToMove(robot, direction)
+            if (printAllMoves) {
+                println("Move $direction:")
+                grid.printGrid()
+                println()
+            }
         }
 
         return grid.filter { it.value == 'O' }.sumOf { it.x + 100 * it.y }
@@ -104,8 +112,8 @@ fun main() {
     }
 
     // test if implementation meets criteria from the description, like:
-    val smallTestInput = readInput(pkg = "day15", name = "Day15_small_test")
-    check(part1(smallTestInput) == 2028)
+    val smallTestInput = readInput(pkg = "day15", name = "Day15_small_test_1")
+    check(part1(smallTestInput, printAllMoves = true) == 2028)
     check(part2(smallTestInput) == 0)
 
     val testInput = readInput(pkg = "day15", name = "Day15_test")
