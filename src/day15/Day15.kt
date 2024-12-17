@@ -105,20 +105,57 @@ fun main() {
         return grid.filter { it.value == 'O' }.sumOf { it.x + 100 * it.y }
     }
 
-    fun part2(input: List<String>): Int {
-        var sum = 0
+    fun part2(input: List<String>, printAllMoves: Boolean = false): Int {
+        val grid = mutableListOf<Node>()
 
-        return sum
+        for (y in 0 until input.indexOf("")) {
+            for (x in 0 until input[y].length) {
+                if (input[y][x] == '@') {
+                    grid.add(Node(2 * x, y, '@'))
+                    grid.add(Node(2 * x + 1, y, '.'))
+                } else if (input[y][x] == 'O') {
+                    grid.add(Node(2 * x, y, '['))
+                    grid.add(Node(2 * x + 1, y, ']'))
+                } else if (input[y][x] == '#') {
+                    grid.add(Node(2 * x, y, '#'))
+                    grid.add(Node(2 * x + 1, y, '#'))
+                } else {
+                    grid.add(Node(2 * x, y, '.'))
+                    grid.add(Node(2 * x + 1, y, '.'))
+                }
+            }
+        }
+
+        val moves = input.subList(input.indexOf("") + 1, input.size).flatMap { it.toList() }
+
+        if (printAllMoves) {
+            println("Initial state:")
+            grid.printGrid()
+            println()
+        }
+
+        var robot = grid.first { it.value == '@' }
+        moves.forEach { direction ->
+            robot = grid.tryToMove(robot, direction)
+            if (printAllMoves) {
+                println("Move $direction:")
+                grid.printGrid()
+                println()
+            }
+        }
+
+        return grid.filter { it.value == '[' }.sumOf { it.x + 100 * it.y }
     }
 
     // test if implementation meets criteria from the description, like:
-    val smallTestInput = readInput(pkg = "day15", name = "Day15_small_test_1")
-    check(part1(smallTestInput, printAllMoves = true) == 2028)
-    check(part2(smallTestInput) == 0)
+    val smallTestInputPart1 = readInput(pkg = "day15", name = "Day15_small_test_1")
+    check(part1(smallTestInputPart1, printAllMoves = true) == 2028)
+    val smallTestInputPart2 = readInput(pkg = "day15", name = "Day15_small_test_2")
+    check(part2(smallTestInputPart2, printAllMoves = true) == 618)
 
     val testInput = readInput(pkg = "day15", name = "Day15_test")
     check(part1(testInput) == 10092)
-    check(part2(testInput) == 0)
+    check(part2(testInput) == 9021)
 
     val input = readInput(pkg = "day15", name = "Day15")
     part1(input).println()
