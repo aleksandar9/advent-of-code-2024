@@ -48,7 +48,50 @@ fun main() {
         }
     }
 
+    fun List<Node>.fillTheGaps(nodes: List<Node>): List<Node> {
+        val result = mutableListOf<Node>()
+        nodes.forEachIndexed { index, node ->
+            if (node.value == '[' && nodes.getOrNull(index + 1)?.value != ']') {
+                result.add(node)
+                result.add(this.find { it.x == node.x + 1 && it.y == node.y && it.value == ']' }!!)
+            } else if (node.value == ']' && nodes.getOrNull(index - 1)?.value != '[') {
+                result.add(this.find { it.x == node.x - 1 && it.y == node.y && it.value == '[' }!!)
+                result.add(node)
+            } else {
+                result.add(node)
+            }
+        }
+
+        return result.distinct().sortedBy(Node::x)
+    }
+
+    fun List<Node>.pushWider(nodesToPush: List<Node>, direction: Char): Boolean {
+        val deltaY = if (direction == '^') -1 else 1
+        val initialNext = nodesToPush.mapNotNull { node ->
+            this.find { it.x == node.x && it.y == node.y + deltaY }
+        }.sortedBy(Node::x).toMutableList()
+
+        val nextNodes = this.fillTheGaps(initialNext)
+
+        if (nextNodes.all { it.value == '.' }) {
+            nodesToPush.zip(nextNodes).forEach { (node, next) -> next.value = node.value }
+            return true
+        } else if (nextNodes.any { it.value == '#' }) {
+            return false
+        } else {
+            if (this.pushWider(nextNodes.filterNot { it.value == '.' }, direction)) {
+                nextNodes.forEach { next ->
+                    next.value = nodesToPush.firstOrNull { it.x == next.x }?.value ?: '.'
+                }
+                return true
+            } else {
+                return false
+            }
+        }
+    }
+
     fun List<Node>.tryToMove(node: Node, direction: Char): Node {
+        val leftRight = setOf('<', '>')
         val next = when (direction) {
             '^' -> this.firstOrNull { it.x == node.x && it.y == node.y - 1 }
             'v' -> this.firstOrNull { it.x == node.x && it.y == node.y + 1 }
@@ -65,9 +108,23 @@ fun main() {
             return next
         } else if (next.value == '#') {
             return node
-        } else {
+        } else if (next.value == 'O' || direction in leftRight) {
             if (this.pushNext(next, direction)) {
                 next.value = node.value
+                node.value = '.'
+                return next
+            } else {
+                return node
+            }
+        } else {
+            val next2 = if (next.value == '[') {
+                this.find { it.x == next.x + 1 && it.y == next.y && it.value == ']' }!!
+            } else {
+                this.find { it.x == next.x - 1 && it.y == next.y && it.value == '[' }!!
+            }
+            if (this.pushWider(listOf(next, next2).sortedBy(Node::x), direction)) {
+                next.value = node.value
+                next2.value = '.'
                 node.value = '.'
                 return next
             } else {
